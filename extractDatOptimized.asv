@@ -64,7 +64,7 @@ for i = 1
                 % Save the line into the matrix
                 switch(state)
                     case 1
-                        data_e(columns, :);
+                        data_e = data_e(columns, :);
                     case 2
                         data_ep = data_ep(1:columns, :);
                     case 3

@@ -12,7 +12,7 @@ sig4 = "       NODE FOOT-  RF1            RF2            RF3";
 sig5 = "   Abaqus 3DEXPERIENCE R2018x";
 sig6 = "          THE ANALYSIS HAS BEEN COMPLETED";
 
-for i = 2
+for i = 1
     
     filename = allFilenames(i).name; % Set file to read
 
