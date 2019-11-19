@@ -7,10 +7,15 @@ sig_e = "E11";
 sig_pe = "EP1";
 sig_rf = "RF1";
 
+% Output directory
+outputDir = '/results/';
+
 allFilenames = dir('*.dat');
-for i = 1
+for i = 2
     
     filename = allFilenames(i).name; % Set file to read
+    [filePath,name,ext] = fileparts(allFilenames(i).name);
+    outputFile = [pwd,outputDir,name,'.mat'];
     
     fprintf("Reading file %s.\n",filename);
     fid = fopen(filename,'r');
@@ -30,19 +35,19 @@ for i = 1
             % values, and update the state to start recording into the array
             if contains(line,sig_e)
                 columns = 1;
-                data_e = zeros(1000, 6);
+                E = zeros(1000000, 6);
                 state = 1;  % Start Recording Strain
                 fgetl(fid); % Burn empty lines
                 fgetl(fid);
             elseif contains(line,sig_pe)
                 columns = 1;
-                data_ep = zeros(1000, 3);
+                EP = zeros(1000000, 3);
                 state = 2;  % Start Recording Principal Strain
                 fgetl(fid) % Burn empty lines
                 fgetl(fid);
             elseif contains(line,sig_rf)
                 columns = 1;
-                data_rf = zeros(1000, 3);
+                RF = zeros(1000000, 3);
                 state = 3;  % Start Recording Reaction Force
                 for a = 1:12
                     fgetl(fid) % Burn empty lines
@@ -56,28 +61,33 @@ for i = 1
                 % Clip and save the matrix
                 switch(state)
                     case 1
-                        data_e = data_e(1:columns-1, :);
+                        E = E(1:columns-1, :);
                         state = 0;
+                        save(outputFile, 'E');
+                        clear E;
                     case 2
-                        data_ep = data_ep(1:columns-1, :);
+                        EP = EP(1:columns-1, :);
                         state = 0;
+                        save(outputFile, 'EP', '-append');
+                        clear EP;
                     case 3
-                        data_rf = data_rf(1:columns-1, :);
+                        RF = RF(1:columns-1, :);
                         state = 0;
-                        save('test.mat');
+                        save(outputFile, 'RF', '-append');
+                        clear RF;
                 end
             else
                 % Save the line into the matrix
                 switch(state)
                     case 1
                         temp = cell2mat(textscan(line,'%f'));
-                        data_e(columns, :) = temp(2:7); 
+                        E(columns, :) = temp(2:7); 
                     case 2
                         temp = cell2mat(textscan(line,'%f'));
-                        data_ep(columns, :) = temp(2:4);
+                        EP(columns, :) = temp(2:4);
                     case 3
                         temp = cell2mat(textscan(line,'%f'));
-                        data_rf(columns, :) = temp(2:4);
+                        RF(columns, :) = temp(2:4);
                 end
                 columns = columns + 1;
             end
